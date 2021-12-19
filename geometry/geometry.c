@@ -1,11 +1,18 @@
 #include <math.h>
 #include "mathematics.h"
 #include "geometry.h"
+#include <stdio.h>
 
 bool intersect_line_line(struct geom_point* p_result_point,
                          const struct geom_line* p_line_1,
                          const struct geom_line* p_line_2)
 {
+    
+    if(p_line_1 == 0x0 || p_line_2 == 0x0 || p_result_point == 0x0)
+        return false;
+
+    if(geom_zero_distance(p_line_1) || geom_zero_distance(p_line_2))
+        return false;
     // Ay + Bx = C
     // (y-y1)/(y2-y1) = (x-x1)/(x2-x1)
     // (x2-x1)*y + (y1-y2)*x = y1*x2 - x1*y2
@@ -36,6 +43,7 @@ bool intersect_line_line(struct geom_point* p_result_point,
         p_result_point->y = INT32_MIN;
         return true;
     }
+    
 
     int32_t A1 = 0, B1 = 0, C1 = 0,
             A2 = 0, B2 = 0, C2 = 0,
@@ -48,7 +56,7 @@ bool intersect_line_line(struct geom_point* p_result_point,
     calc_res = calc_C(&C1, p_line_1);
     if(!calc_res) return false;
     
-    bool calc_res = calc_A(&A2, p_line_2);
+    calc_res = calc_A(&A2, p_line_2);
     if(!calc_res) return false;
     calc_res = calc_B(&B2, p_line_2);
     if(!calc_res) return false;
@@ -72,6 +80,12 @@ bool intersect_line_line(struct geom_point* p_result_point,
     return true;
 }
 
+bool geom_zero_distance(const struct geom_line* p_line){
+    bool res = (p_line->first_pt.x == p_line->second_pt.x) 
+            && (p_line->first_pt.y == p_line->second_pt.y);
+    return res;
+}
+
 bool calc_det(int32_t* det, int32_t A,
         int32_t B, int32_t  C, int32_t D){
     int32_t l_det = 0, r_det = 0;
@@ -79,7 +93,7 @@ bool calc_det(int32_t* det, int32_t A,
     if(!mul_res) return false;
     mul_res = math_mul(&r_det, B, C);
     if(!mul_res) return false;
-    return math_add(&det, l_det, -r_det);
+    return math_add(det, l_det, -r_det);
 }
 
 bool calc_A(int32_t* A, const struct geom_line* p_line){
