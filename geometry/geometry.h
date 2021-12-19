@@ -20,6 +20,8 @@ bool intersect_line_line(struct geom_point* p_result_point,
                          const struct geom_line* p_line_2);
 
 bool geom_zero_distance(const struct geom_line* p_line);
+bool check_coincident(const int32_t A1, const int32_t B1, const int32_t C1,
+                      const int32_t A2, const int32_t B2, const int32_t C2);
 
 bool calc_A(int32_t* A, const struct geom_line* p_line);
 bool calc_B(int32_t* B, const struct geom_line* p_line);

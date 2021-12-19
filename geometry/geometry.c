@@ -34,17 +34,6 @@ bool intersect_line_line(struct geom_point* p_result_point,
     // if p_result_point == {INT32_MIN, INT32_MIN} lines are coincident, function returns true
     // else p_result_point == {INT32_MAX, INT32_MAX} lines are parallel, function returns false
     // otherwise p_result_point is intersection point of p_line_1 and p_line_2, function returns true
-    bool coincident = p_line_1->first_pt.x == p_line_2->first_pt.x
-                          && p_line_1->first_pt.y == p_line_2->first_pt.y
-                          && p_line_1->second_pt.x == p_line_2->second_pt.x
-                          && p_line_1->second_pt.y == p_line_2->second_pt.y;
-    if(coincident){
-        p_result_point->x = INT32_MIN;
-        p_result_point->y = INT32_MIN;
-        return true;
-    }
-    
-
     int32_t A1 = 0, B1 = 0, C1 = 0,
             A2 = 0, B2 = 0, C2 = 0,
             det = 0, det1 = 0, det2 = 0;
@@ -66,6 +55,13 @@ bool intersect_line_line(struct geom_point* p_result_point,
     calc_res = calc_det(&det, A1, B1, A2, B2);
     if(!calc_res) return false;
     if(det == 0){
+        bool coincident = check_coincident(A1, B1, C1, A2, B2, C2);
+        // lines are coincident
+        if(coincident){
+            p_result_point->x = INT32_MIN;
+            p_result_point->y = INT32_MIN;
+            return true;
+        }
         // lines are parallel        
         p_result_point->x = INT32_MAX;
         p_result_point->y = INT32_MAX;
@@ -84,6 +80,29 @@ bool geom_zero_distance(const struct geom_line* p_line){
     bool res = (p_line->first_pt.x == p_line->second_pt.x) 
             && (p_line->first_pt.y == p_line->second_pt.y);
     return res;
+}
+
+bool check_coincident(const int32_t A1, const int32_t B1, const int32_t C1,
+                      const int32_t A2, const int32_t B2, const int32_t C2){
+    int32_t coefA = 0, coefB = 0, coefC = 0;
+    if(!(A2%A1) || !(A1%A2)){
+        int32_t neg = 2*(A1>0 && A2>0)-1;
+        if(A1*neg > A2*neg) coefA = A1/A2;
+        else coefA = A2/A1;
+        
+    } else return false;
+    if(!(B2%B1) || !(B1%B2)){
+        int32_t neg = 2*(B1>0 && B2>0)-1;
+        if(B1*neg > B2*neg) coefB = B1/B2;
+        else coefB = B2/B1;
+    } else return false;
+    if (coefA != coefB) return false;
+    if(!(C2%C1) || !(C1%C2)){
+        int32_t neg = 2*(C1>0 && C2>0)-1;
+        if(C1*neg > C2*neg) coefC = C1/C2;
+        else coefC = C2/C1;
+    } else return false;
+    return coefA == coefB && coefB == coefC;
 }
 
 bool calc_det(int32_t* det, int32_t A,
